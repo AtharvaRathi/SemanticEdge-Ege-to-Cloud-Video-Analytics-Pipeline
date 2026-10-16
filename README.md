@@ -163,8 +163,8 @@ flowchart TD
 ### Step 1: Clone the Repository
 
 ```bash
-git clone https://github.com/<your-username>/SemanticEdge.git
-cd SemanticEdge
+git clone https://github.com/AtharvaRathi/SemanticEdge-Ege-to-Cloud-Video-Analytics-Pipeline.git
+cd SemanticEdge-Ege-to-Cloud-Video-Analytics-Pipeline
 ```
 
 ---
@@ -176,6 +176,8 @@ Launch the unified Docker Compose stack containing **Qdrant**, **Redis**, the **
 ```bash
 docker compose up -d --build
 ```
+
+> **Automated Model Initialization:** The cloud container entrypoint automatically detects whether the split INT8 SigLIP ONNX models exist and auto-exports them on the first run. No manual weight downloads or Hugging Face setup are required.
 
 Verify that all containers are healthy:
 ```bash
@@ -206,6 +208,8 @@ pip install -r edge/requirements.txt
 > ```bash
 > export KMP_DUPLICATE_LIB_OK=TRUE
 > ```
+>
+> **Python 3.9+ Compatibility:** All edge modules and Supervision components are fully compatible with Python 3.9 through 3.12 via top-level future annotations and typing union fallbacks.
 
 ---
 

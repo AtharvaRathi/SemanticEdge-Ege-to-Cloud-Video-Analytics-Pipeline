@@ -10,5 +10,12 @@ until wget -qO- "http://${HOST}:${PORT}/healthz" > /dev/null 2>&1; do
   sleep 2
 done
 
-echo "[SemanticEdge] Qdrant is up! Launching cloud backend service..."
+echo "[SemanticEdge] Qdrant is up!"
+
+if [ ! -f "models/siglip_int8/vision_encoder_int8.onnx" ] || [ ! -f "models/siglip_int8/text_encoder_int8.onnx" ]; then
+  echo "[SemanticEdge] SigLIP ONNX models missing. Auto-exporting split INT8 models (one-time)..."
+  python tools/export_split_models.py
+fi
+
+echo "[SemanticEdge] Launching cloud backend service..."
 exec "$@"
