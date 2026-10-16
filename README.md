@@ -16,6 +16,12 @@
 
 </div>
 
+<div align="center">
+  <img src="./assets/search-demo.gif" width="48%" alt="Zero-Shot Search in Action">
+  <img src="./assets/pipeline-demo.gif" width="48%" alt="Context Firewall Dropping Frames">
+  <br><em>Left: Natural language zero-shot retrieval. Right: C++ Context Firewall dropping routine frames at the edge.</em>
+</div>
+
 ---
 
 ## 💡 The Pitch
