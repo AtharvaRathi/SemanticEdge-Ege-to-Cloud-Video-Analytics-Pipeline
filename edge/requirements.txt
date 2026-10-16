@@ -1,0 +1,17 @@
+# Edge Dependencies for SemanticEdge
+# Multi-Object Tracking & Vector Indexing
+
+# Core YOLOv8 object detection
+ultralytics>=8.0.0
+
+# Numerical & Tracking algorithms (Linear assignment, Kalman filter)
+numpy>=1.21.0
+scipy>=1.7.0
+
+# Image & Video I/O
+opencv-python-headless>=4.8.0
+pillow>=9.0.0
+
+# Video frame decoding
+av>=12.0.0
+tqdm>=4.65.0

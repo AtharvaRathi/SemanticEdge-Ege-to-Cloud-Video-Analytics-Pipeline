@@ -1,0 +1,82 @@
+version: '3.8'
+
+services:
+  # ─────────────────────────────────────────────
+  # FastAPI Backend
+  # ─────────────────────────────────────────────
+  api:
+    build: .
+    image: ai_gallery
+    container_name: ai_engine
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app                              # Hot-reload for development
+      - model_cache:/root/.cache/huggingface # Persist downloaded models
+    environment:
+      - QDRANT_HOST=qdrant_db
+      - QDRANT_PORT=6333
+      - QDRANT_COLLECTION=video_embeddings
+      # Tell qdrant.py to use HTTP server mode (not embedded local)
+      - QDRANT_USE_SERVER=true
+    depends_on:
+      qdrant_db:
+        condition: service_healthy
+
+  # ─────────────────────────────────────────────
+  # Qdrant Vector Database
+  #
+  # Speed-first tuning (speed > RAM):
+  #   • async_scorer=true     → parallel scoring threads (FAST, default ON)
+  #   • mmap_threshold_kb     → only raw FP32 vecs are on disk; INT8 index
+  #                             and HNSW graph are kept in RAM by the client
+  #                             config (always_ram=True / on_disk=False).
+  #   • max_search_threads=0  → let Qdrant use all CPU cores for search
+  # ─────────────────────────────────────────────
+  qdrant_db:
+    image: qdrant/qdrant:latest
+    ports:
+      - "6333:6333"   # REST API
+      - "6334:6334"   # gRPC (faster bulk ops; enable prefer_grpc in client)
+    volumes:
+      - qdrant_data:/qdrant/storage
+    environment:
+      # ── Segment storage ────────────────────────────────────────────────
+      # Segments whose on-disk raw-vector size exceeds this threshold are
+      # mmap-ed from disk.  50 MB is generous — only raw FP32 vecs hit disk;
+      # the INT8 index is kept in RAM via always_ram=True in the collection.
+      - QDRANT__STORAGE__MMAP_THRESHOLD_KB=51200
+
+      # ── Async parallel scorer (CRITICAL for speed) ────────────────────
+      # false was the old value — it serialised ALL scoring. Flip to true.
+      # This allows Qdrant to score candidates on multiple threads.
+      - QDRANT__STORAGE__ASYNC_SCORER=true
+
+      # ── Search thread pool ─────────────────────────────────────────────
+      # 0 = use all available CPU cores.  Caps at the number of vCPUs.
+      - QDRANT__STORAGE__MAX_SEARCH_THREADS=0
+
+      # ── Optimizer (indexing) ───────────────────────────────────────────
+      # How many segments to merge concurrently during background optimisation.
+      - QDRANT__STORAGE__OPTIMIZERS__MAX_OPTIMIZATION_THREADS=2
+
+      # ── WAL (Write-Ahead Log) ──────────────────────────────────────────
+      # Larger WAL capacity = fewer flushes = faster ingestion.
+      - QDRANT__STORAGE__WAL__WAL_CAPACITY_MB=64
+
+      # ── Payload storage ────────────────────────────────────────────────
+      # Keep payload on disk (it is tiny and rarely read at search time).
+      - QDRANT__STORAGE__ON_DISK_PAYLOAD=true
+
+      # ── Telemetry ──────────────────────────────────────────────────────
+      - QDRANT__TELEMETRY_DISABLED=true
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:6333/healthz || exit 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+
+volumes:
+  qdrant_data:
+  model_cache:

@@ -1,0 +1,39 @@
+# ── Web framework ────────────────────────────────────────────────────────────
+fastapi
+uvicorn[standard]
+
+# ── Vector database client ───────────────────────────────────────────────────
+qdrant-client>=1.9.0
+
+# ── ONNX Runtime (INT8 inference) ────────────────────────────────────────────
+# CPU-only runtime – cross-platform (x86_64 and ARM64 / Apple Silicon).
+# Automatically uses CPUExecutionProvider with optional thread tuning.
+onnxruntime>=1.17.0
+
+# ── ML / Processors ──────────────────────────────────────────────────────────
+# transformers is needed for SiglipProcessor (tokeniser + image processor).
+# torch is only required during the one-time quantize_model.py export step;
+# it is NOT needed at inference time (ONNX Runtime handles everything).
+transformers>=4.38.0
+sentencepiece>=0.2.0
+pillow
+numpy
+
+# ── ONNX export + INT8 quantization (run once via tools/quantize_model.py) ───
+# Only required for model export/quantization, not for inference.
+# Install separately when preparing the model:
+#   pip install optimum[onnxruntime] torch
+optimum[onnxruntime]
+torch            # needed only for initial ONNX export; remove for inference-only deploys
+onnxscript       # PyTorch ONNX exporter backend
+
+# ── Scene detection (now handled by FFmpeg 'select' filter) ──────────────────
+# scenedetect[opencv] is NO LONGER NEEDED — removed to reduce dependency footprint.
+# FFmpeg's built-in select='gt(scene,X)' filter does the same job in a single
+# decode pass, eliminating the previous double-decode bottleneck.
+
+# ── Utilities ────────────────────────────────────────────────────────────────
+python-multipart       # FastAPI file uploads
+pydantic-settings      # settings management
+requests               # CLI client HTTP calls
+av>=12.0.0             # PyAV: Python bindings for FFmpeg libav* (demux-only PTS map, no subprocess)

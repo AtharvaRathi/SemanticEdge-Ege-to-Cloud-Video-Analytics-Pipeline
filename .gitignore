@@ -1,0 +1,68 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# C++ build artifacts
+build/
+*.o
+*.obj
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Node & Frontend
+node_modules/
+frontend/node_modules/
+frontend/dist/
+.npm/
+.vite/
+
+# Operating System files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE & Editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Large Model weights & quantized model binaries (>100MB rejected by GitHub)
+# Generated via cloud/tools/export_split_models.py and cloud/tools/quantize_model.py
+*.pt
+*.onnx
+*.onnx.data
+*.bin
+*.safetensors
+cloud/models/**/*.onnx
+cloud/models/**/*.onnx.data
+!cloud/models/**/.gitkeep
+
+# Temporary upload directories & local databases
+cloud/temp_uploads/*
+!cloud/temp_uploads/.gitkeep
+temp_uploads/*
+!temp_uploads/.gitkeep
+cloud/qdrant_local_db/
+
+# Video files (avoid pushing large media blobs)
+*.mp4
+*.avi
+*.mov
+*.mkv
+
+# Environment & logs
+.env.local
+*.log
